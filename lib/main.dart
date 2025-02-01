@@ -1,20 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'src/core/service_locator.dart';
+import 'src/features/blog/presentation/view_models/blog_list_viewmodel.dart';
+import 'src/features/blog/presentation/view_models/blog_post_details_viewmodel.dart';
+import 'src/features/blog/presentation/views/blog_list_view.dart';
+import 'src/features/blog/presentation/views/blog_post_details_view.dart';
 
-import 'src/app.dart';
-import 'src/settings/settings_controller.dart';
-import 'src/settings/settings_service.dart';
+void main() {
+  setupServiceLocator();
+  runApp(const MyApp());
+}
 
-void main() async {
-  // Set up the SettingsController, which will glue user settings to multiple
-  // Flutter Widgets.
-  final settingsController = SettingsController(SettingsService());
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
-  // Load the user's preferred theme while the splash screen is displayed.
-  // This prevents a sudden theme change when the app is first displayed.
-  await settingsController.loadSettings();
-
-  // Run the app and pass in the SettingsController. The app listens to the
-  // SettingsController for changes, then passes it further down to the
-  // SettingsView.
-  runApp(MyApp(settingsController: settingsController));
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Tech Blog',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        useMaterial3: true,
+      ),
+      home: ChangeNotifierProvider(
+        create: (_) => BlogListViewModel(locator())..loadPosts(),
+        child: const BlogListView(),
+      ),
+      onGenerateRoute: (settings) {
+        if (settings.name?.startsWith('/post/') ?? false) {
+          final postId = settings.name!.replaceFirst('/post/', '');
+          return MaterialPageRoute(
+            builder: (context) => ChangeNotifierProvider(
+              create: (_) => BlogPostDetailsViewModel(locator(), postId)..loadPost(),
+              child: BlogPostDetailsView(postId: postId),
+            ),
+          );
+        }
+        return null;
+      },
+    );
+  }
 }
