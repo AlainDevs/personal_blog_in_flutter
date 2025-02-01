@@ -1,0 +1,6 @@
+{
+  "appTitle": "personal_blog_in_flutter",
+  "@appTitle": {
+    "description": "The title of the application"
+  }
+}
