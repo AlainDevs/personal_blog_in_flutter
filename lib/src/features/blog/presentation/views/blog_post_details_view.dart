@@ -5,12 +5,12 @@ import '../view_models/blog_post_details_viewmodel.dart';
 import 'package:intl/intl.dart';
 
 class BlogPostDetailsView extends StatelessWidget {
-  final String postId;
-
   const BlogPostDetailsView({
     super.key,
     required this.postId,
   });
+
+  final String postId;
 
   @override
   Widget build(BuildContext context) {
@@ -82,43 +82,47 @@ class BlogPostDetailsView extends StatelessWidget {
                     ),
                   ),
                   SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: isDesktop ? 
-                            MediaQuery.of(context).size.width * 0.2 : 16.0,
-                        vertical: 24.0,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
+                    child: Center(
+                      child: Container(
+                        constraints: const BoxConstraints(),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: isDesktop ? MediaQuery.of(context).size.width * 0.2 : 16.0,
+                            vertical: 24.0,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Icon(Icons.person_outline),
-                              const SizedBox(width: 8),
-                              Text(post.author),
-                              const SizedBox(width: 16),
-                              const Icon(Icons.calendar_today),
-                              const SizedBox(width: 8),
-                              Text(DateFormat.yMMMd().format(post.publishDate)),
+                              Row(
+                                                                children: [
+                                                                  const Icon(Icons.person_outline),
+                                                                  const SizedBox(width: 8),
+                                                                  Expanded(child: Text(post.author)),
+                                                                  const SizedBox(width: 16),
+                                                                  const Icon(Icons.calendar_today),
+                                                                  const SizedBox(width: 8),
+                                                                  Expanded(child: Text(DateFormat.yMMMd().format(post.publishDate))),
+                                                                ],
+                                                              ),
+                              const SizedBox(height: 16),
+                              if (post.tags.isNotEmpty) ...[
+                                Wrap(
+                                  spacing: 8,
+                                  children: post.tags
+                                      .map((tag) => Chip(
+                                            label: Text(tag),
+                                          ))
+                                      .toList(),
+                                ),
+                                const SizedBox(height: 24),
+                              ],
+                              Text(
+                                post.content,
+                                style: Theme.of(context).textTheme.bodyLarge,
+                              ),
                             ],
                           ),
-                          const SizedBox(height: 16),
-                          if (post.tags.isNotEmpty) ...[
-                            Wrap(
-                              spacing: 8,
-                              children: post.tags
-                                  .map((tag) => Chip(
-                                        label: Text(tag),
-                                      ))
-                                  .toList(),
-                            ),
-                            const SizedBox(height: 24),
-                          ],
-                          Text(
-                            post.content,
-                            style: Theme.of(context).textTheme.bodyLarge,
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
