@@ -11,11 +11,20 @@ class BlogListView extends StatelessWidget {
   Widget build(BuildContext context) {
     return ResponsiveBuilder(
       builder: (context, sizingInformation) {
-        final isDesktop = sizingInformation.deviceScreenType == DeviceScreenType.desktop;
+        final isDesktop =
+            sizingInformation.deviceScreenType == DeviceScreenType.desktop;
         final padding = isDesktop ? 24.0 : 8.0;
-        
+
         return Scaffold(
           appBar: AppBar(
+            leading: !isDesktop
+                ? IconButton(
+                    icon: const Icon(Icons.menu),
+                    onPressed: () {
+                      Scaffold.of(context).openDrawer();
+                    },
+                  )
+                : null,
             title: const Text('Tech Blog'),
             actions: [
               IconButton(
@@ -25,6 +34,46 @@ class BlogListView extends StatelessWidget {
                 },
               ),
             ],
+          ),
+          drawer: Drawer(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                const DrawerHeader(
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                  ),
+                  child: Text(
+                    'Navigation Menu',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                    ),
+                  ),
+                ),
+                ListTile(
+                  title: const Text('Home'),
+                  onTap: () {
+                    // Navigate to Home
+                    Navigator.pop(context); // Close the drawer
+                  },
+                ),
+                ListTile(
+                  title: const Text('Categories'),
+                  onTap: () {
+                    // Navigate to Categories
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  title: const Text('About'),
+                  onTap: () {
+                    // Navigate to About
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
           ),
           body: Consumer<BlogListViewModel>(
             builder: (context, viewModel, child) {
@@ -63,18 +112,25 @@ class BlogListView extends StatelessWidget {
                 final screenWidth = MediaQuery.of(context).size.width;
                 final availableWidth = screenWidth - (2 * padding);
                 final cardSpacing = 16.0;
-                final cardWidth = (availableWidth - cardSpacing) / 2;
-                
+                final maxCardWidth = 300.0; // Maximum width for each card
+                final crossAxisCount = ((availableWidth + cardSpacing) /
+                        (maxCardWidth + cardSpacing))
+                    .floor();
+                final cardWidth =
+                    (availableWidth - (crossAxisCount - 1) * cardSpacing) /
+                        crossAxisCount;
+
                 // Calculate height based on content
                 final imageHeight = cardWidth * (9 / 16); // AspectRatio 16:9
-                final contentHeight = 200.0; // Fixed content height (title + excerpt + metadata)
+                final contentHeight =
+                    200.0; // Fixed content height (title + excerpt + metadata)
                 final cardHeight = imageHeight + contentHeight;
 
                 return Padding(
                   padding: EdgeInsets.all(padding),
                   child: GridView.builder(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
+                      crossAxisCount: crossAxisCount,
                       crossAxisSpacing: cardSpacing,
                       mainAxisSpacing: cardSpacing,
                       childAspectRatio: cardWidth / cardHeight,
@@ -84,7 +140,8 @@ class BlogListView extends StatelessWidget {
                       final post = viewModel.posts[index];
                       return BlogPostCard(
                         post: post,
-                        onTap: () => viewModel.navigateToPostDetails(context, post.id),
+                        onTap: () =>
+                            viewModel.navigateToPostDetails(context, post.id),
                         isDesktop: true,
                       );
                     },
@@ -106,7 +163,8 @@ class BlogListView extends StatelessWidget {
                     height: cardHeight,
                     child: BlogPostCard(
                       post: post,
-                      onTap: () => viewModel.navigateToPostDetails(context, post.id),
+                      onTap: () =>
+                          viewModel.navigateToPostDetails(context, post.id),
                     ),
                   );
                 },
